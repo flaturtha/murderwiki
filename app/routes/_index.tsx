@@ -10,7 +10,7 @@ import {useLoaderData} from '@remix-run/react'
 import groq from 'groq'
 
 import {PreviewWrapper} from '~/components/PreviewWrapper'
-import {Records} from '~/components/Records'
+import {Novels} from '~/components/Novels'
 import {Title} from '~/components/Title'
 import {deduplicateDrafts} from '~/lib/deduplicateDrafts'
 import {getPreviewToken} from '~/lib/getPreviewToken'
@@ -18,7 +18,7 @@ import {useRootLoaderData} from '~/lib/useRootLoaderData'
 import type {loader as rootLoader} from '~/root'
 import {getClient} from '~/sanity/client'
 import tailwind from '~/tailwind.css'
-import {recordStubsZ} from '~/types/record'
+import {novelStubsZ} from '~/types/novel'
 
 export const links: LinksFunction = () => {
   return [{rel: 'stylesheet', href: tailwind}]
@@ -37,7 +37,7 @@ export const meta: V2_MetaFunction = ({matches}) => {
 
 export const loader = async ({request}: LoaderArgs) => {
   const {preview} = await getPreviewToken(request)
-  const query = groq`*[_type == "record"][0...12]|order(title asc){
+  const query = groq`*[_type == "novel"][0...12]|order(title asc){
     _id,
     _type,
     title,
@@ -46,28 +46,28 @@ export const loader = async ({request}: LoaderArgs) => {
     image
   }`
 
-  const records = await getClient(preview)
+  const novels = await getClient(preview)
     .fetch(query)
-    .then((res) => (res ? recordStubsZ.parse(res) : null))
+    .then((res) => (res ? novelStubsZ.parse(res) : null))
 
-  const recordsDeduped =
-    records?.length && preview
-      ? recordStubsZ.parse(deduplicateDrafts(records))
-      : records
+  const novelsDeduped =
+    novels?.length && preview
+      ? novelStubsZ.parse(deduplicateDrafts(novels))
+      : novels
 
-  if (!records) {
+  if (!novels) {
     throw new Response('Not found', {status: 404})
   }
 
   return json({
-    records: recordsDeduped,
+    novels: novelsDeduped,
     query: preview ? query : null,
     params: preview ? {} : null,
   })
 }
 
 export default function Index() {
-  const {records = [], query, params} = useLoaderData<typeof loader>()
+  const {novels = [], query, params} = useLoaderData<typeof loader>()
   const {home, query: homeQuery, params: homeParams} = useRootLoaderData()
 
   return (
@@ -79,8 +79,8 @@ export default function Index() {
         params={homeParams}
       />
       <PreviewWrapper
-        data={records}
-        render={(data) => <Records records={data ?? []} />}
+        data={novels}
+        render={(data) => <Novels novels={data ?? []} />}
         query={query}
         params={params}
       />

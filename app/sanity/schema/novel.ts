@@ -1,12 +1,13 @@
+/* eslint-disable prettier/prettier */
 import { ComposeIcon, MenuIcon, ThListIcon } from "@sanity/icons";
-import { Disc } from "lucide-react";
+import { Book } from "lucide-react";
 import { defineField, defineType } from "sanity";
 
-export const recordType = defineType({
-  name: "record",
-  title: "Record",
+export const novelType = defineType({
+  name: "novel",
+  title: "Novel",
   type: "document",
-  icon: Disc,
+  icon: Book,
   fieldsets: [
     {
       name: "rating",
@@ -25,11 +26,6 @@ export const recordType = defineType({
       name: "editorial",
       title: "Editorial",
       icon: ComposeIcon,
-    },
-    {
-      name: "tracks",
-      title: "Tracks",
-      icon: MenuIcon,
     },
   ],
   fields: [
@@ -71,7 +67,7 @@ export const recordType = defineType({
       group: "details",
     }),
     defineField({
-      name: "content",
+      name: "summary",
       type: "array",
       of: [{ type: "block" }, { type: "image" }],
       group: "editorial",
@@ -81,12 +77,6 @@ export const recordType = defineType({
       type: "image",
       options: { hotspot: true },
       group: "editorial",
-    }),
-    defineField({
-      name: "tracks",
-      type: "array",
-      of: [{ type: "track" }],
-      group: "tracks",
     }),
   ],
   preview: {
